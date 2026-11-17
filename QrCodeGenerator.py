@@ -1,23 +1,20 @@
+from flask import Flask, send_file
 import qrcode
+import io
+import os
 
-def generate_qr_code(text, filename):
-    qr = qrcode.QRCode(
-        version=1,
-        error_correction=qrcode.constants.ERROR_CORRECT_L,
-        box_size=10,
-        border=4,
-    )
+app = Flask(__name__)
 
-    qr.add_data(text)
-    qr.make(fit=True)
+@app.route("/")
+def home():
+    img = qrcode.make("https://b001.io")
 
-    img = qr.make_image(fill_color="black", back_color="white")
-    img.save(filename)
+    buffer = io.BytesIO()
+    img.save(buffer, format="PNG")
+    buffer.seek(0)
+
+    return send_file(buffer, mimetype="image/png")
 
 if __name__ == "__main__":
-    text = "https://b001.io"
-    file_name = "qr_code.png"
-
-    generate_qr_code(text, file_name)
-
-    print(f"QR code saved as {file_name}")
+    port = int(os.environ.get("PORT", 10000))
+    app.run(host="0.0.0.0", port=port)
