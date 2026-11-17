@@ -6,14 +6,20 @@ import os
 app = Flask(__name__)
 
 @app.route("/")
-def qr():
-    img = qrcode.make("https://b001.io")
+def generate_qr():
+    url = "https://b001.io"
 
-    buffer = io.BytesIO()
-    img.save(buffer, format="PNG")
-    buffer.seek(0)
+    img = qrcode.make(url)
 
-    return send_file(buffer, mimetype="image/png")
+    img_buffer = io.BytesIO()
+    img.save(img_buffer, format="PNG")
+    img_buffer.seek(0)
+
+    return send_file(
+        img_buffer,
+        mimetype="image/png",
+        download_name="qr_code.png"
+    )
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
